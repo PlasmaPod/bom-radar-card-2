@@ -9,10 +9,13 @@ A Home Assistant rain radar card using the new tiled images from the Australian 
 
 ## Contributors
 
-- Hayden Kliese <hayden@kliese.net>
-- Simon Ratcliffe <simon@makin-things.com>
+- **Hayden Kliese** <hayden@kliese.net>
+- **Simon Ratcliffe** <simon@makin-things.com>
+- **Alex Hope-O'Connor** - for his amazing work creating the [BOM Local Service](https://github.com/alexhopeoconnor/bom-local-service) API that keeps this project alive
 
 ## Description
+
+**NOTE:** Due to the deprecation of the BOM Weather API. This plugin now requires the use of a locally running instance of [BOM Local Service](https://github.com/alexhopeoconnor/bom-local-service)
 
 The new Austalian BOM radar products (mobile app and https://weather.bom.gov.au/) now use map tiles to distribute the radar images. This allows for one continous map that can be zoomed and panned seamlessly. This card allows this to be displayed within Home Assistant.
 
@@ -28,6 +31,9 @@ All of the options below can be selected using the GUI config editor, there is n
 | -------------------- | ------- | ------------ | ------------------------------------------------------------ | -------------------------------------------- |
 | type                 | string  | **Required** |                                                              | must be `custom:bom-radar-card`              |
 | card_title           | string  | **Optional** | The title to display on the card                             | no title displayed                           |
+| local_service_url    | string  | **Required** | Enter the URL of you BOM Local API                           | `http://localhost:8082`                      |
+| local_service_suburb | string  | **Optional** | Enter the name of your suburb                                | `Brisbane`                                   |
+| local_service_state  | string  | **Optional** | Select your state                                            | `QLD`                                        |
 | map_style            | string  | **Optional** | Specifies the style for the map **_(Light, Dark)_**          | `'Light'` see section below for valid values |
 | zoom_level           | number  | **Optional** | The initial zoom level, can be from 4 to 10                  | `8`                                          |
 | center_latitude      | number  | **Optional** | The initial center latitude of the map                       | your HA default latitude                     |
@@ -49,6 +55,9 @@ This is the configuration used to generate the radar loop on this page.
 
 ```yaml
 type: custom:bom-radar-card
+local_service_url: 'http://localhost:8082' # Change to your service IP/hostname
+local_service_suburb: 'Brisbane'
+local_service_state: 'QLD'
 map_style: Light
 zoom_level: 8
 frame_count: 7
