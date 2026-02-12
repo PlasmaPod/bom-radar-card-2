@@ -53,6 +53,25 @@ export class BomRadarCardEditor extends LitElement implements LovelaceCardEditor
         },
       },
       {
+        name: 'local_service_url',
+        label: 'Local Service URL',
+        selector: { text: {} },
+      },
+      {
+        name: 'local_service_suburb',
+        label: 'Suburb',
+        selector: { text: {} },
+      },
+      {
+        name: 'local_service_state',
+        label: 'State',
+        selector: { 
+          select: {
+            options: ['NSW', 'VIC', 'QLD', 'SA', 'WA', 'TAS', 'NT', 'ACT']
+          }
+        },
+      },
+      {
         name: 'zoom_level',
         selector: {
           number: {
