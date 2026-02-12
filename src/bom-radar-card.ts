@@ -661,45 +661,53 @@ export class BomRadarCard extends LitElement implements LovelaceCard {
   }
 
   async getRadarCapabilities(): Promise<number> {
-    console.info('getRadarCapabilities ' + Date.now());
-    const headers = new Headers({
-      "Accept": "application/json",
-      "Accept-Encoding": "gzip",
-      "Sec-Fetch-Mode": "cors",
-      "Sec-Fetch-Site": "cross-site",
-    });
-    const response = await fetch(radarCapabilities, {
-      method: 'GET',
-      mode: 'cors',
-      headers: headers,
-    });
+  	console.info('getRadarCapabilities (using local service) ' + Date.now());
+  	// Get config values or use defaults
+  	const serviceUrl = this._config.local_service_url || 'http://localhost:8082';
+  	const suburb = this._config.local_service_suburb || 'Brisbane';
+  	const state = this._config.local_service_state || 'QLD';
+  
+  	try {
+      const response = await fetch(`${serviceUrl}/api/radar/${suburb}/${state}`, {
+      	method: 'GET',
+      	mode: 'cors',
+      });
 
-    if (!response || !response.ok) {
-      setTimeout(() => { this.getRadarCapabilities(); }, 5000);
-      console.info('  failed');
-      return Promise.reject(response);
-    }
-
-    const data = await response.json();
-    let latest = '';
-    for (const obj in data.data.rain) {
-      if (data.data.rain[obj].type === 'observation') {
-        latest = data.data.rain[obj].time;
+      if (!response || !response.ok) {
+        if (response.status === 404) {
+          // Cache being generated
+          console.info('  cache being generated, retry in 30s');
+          setTimeout(() => { this.getRadarCapabilities(); }, 30000);
+          return Promise.reject('Cache being generated');
+	    }
+      	setTimeout(() => { this.getRadarCapabilities(); }, 5000);
+      	console.info('  failed');
+      	return Promise.reject(response);
       }
-    }
 
-    const newTime = latest;
-    if (this.currentTime == newTime) {
+      const data = await response.json();
+    
+      // Extract the observation time (this is what the original method returned)
+      const latest = data.observationTime;
+    
+      const newTime = latest;
+      if (this.currentTime == newTime) {
+        setTimeout(() => { this.getRadarCapabilities(); }, 5000);
+        return Date.parse(latest);
+      }
+
+      this.currentTime = newTime;
+      console.info('Latest ' + this.currentTime);
+
+      const t = Date.parse(latest);
+      this.setNextUpdateTimeout(t);
+      return t;
+    
+    } catch (error) {
+      console.error('Error fetching from local service:', error);
       setTimeout(() => { this.getRadarCapabilities(); }, 5000);
-      return Date.parse(latest);
+      return Promise.reject(error);
     }
-
-    this.currentTime = newTime;
-    console.info('Latest ' + this.currentTime);
-
-    const t = Date.parse(latest);
-    this.setNextUpdateTimeout(t);
-    return t;
   }
 
   private normalizeOverlayTransparency(value: number | undefined): number {
