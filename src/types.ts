@@ -26,6 +26,11 @@ export interface BomRadarCardConfig extends LovelaceCardConfig {
   frame_delay?: number;
   restart_delay?: number;
   overlay_transparency?: number;
+  
+  // Local API Settings
+  local_service_url?: string;
+  local_service_suburb?: string;
+  local_service_state?: string;
 
   // Standard Lovelace flags
   show_warning?: boolean;
